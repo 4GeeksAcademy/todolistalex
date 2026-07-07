@@ -1,16 +1,32 @@
 import React from "react";
 
+
 const TodoItem = ({ task, deleteTask }) => {
+
+
 	return (
-		<li className="list-group-item d-flex justify-content-between align-items-center">
-			{task}
+
+		<li className="todo-item">
+
+			<span>
+				{task.label}
+			</span>
+
 
 			<i
-				className="fas fa-trash text-danger delete-icon"
-				onClick={() => deleteTask(task)}
+
+				className="fas fa-times delete"
+
+				onClick={() => deleteTask(task.id)}
+
 			></i>
+
+
 		</li>
+
 	);
+
 };
+
 
 export default TodoItem;

@@ -1,83 +1,234 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TodoItem from "./TodoItem";
+
 
 const TodoList = () => {
 
 	const [tasks, setTasks] = useState([]);
 	const [input, setInput] = useState("");
 
-
-	const addTask = (e) => {
-
-		if (e.key === "Enter" && input.trim() !== "") {
-
-			setTasks([...tasks, input]);
-
-			setInput("");
+	const user = "alesanchezr";
+const createUser = () => {
+	fetch(`https://playground.4geeks.com/todo/users/${user}`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
 		}
+	})
+	.then((response) => response.json())
+	.then((data) => {
+		console.log("Usuario creado:", data);
+	})
+	.catch((error) => console.log(error));
+};
+
+	// Cargar tareas al iniciar
+	useEffect(() => {
+useEffect(() => {
+	createUser();
+	getTasks();
+}, []);
+		getTasks();
+
+	}, []);
+
+
+
+	const getTasks = () => {
+
+		fetch(`https://playground.4geeks.com/todo/todos/${user}`)
+			.then((response) => response.json())
+			.then((data) => {
+
+				setTasks(data);
+
+			})
+			.catch((error) => console.log(error));
+
 	};
 
 
-	const deleteTask = (taskToDelete) => {
 
-		setTasks(
-			tasks.filter((task) => task !== taskToDelete)
-		);
+	// Crear tarea
+	const addTask = (event) => {
+
+		if (event.key === "Enter" && input.trim() !== "") {
+
+
+			const newTask = {
+
+				label: input,
+				is_done: false
+
+			};
+
+
+
+			fetch(`https://playground.4geeks.com/todo/todos/${user}`, {
+
+				method: "POST",
+
+				body: JSON.stringify(newTask),
+
+				headers: {
+
+					"Content-Type": "application/json"
+
+				}
+
+			})
+
+			.then((response) => response.json())
+
+			.then(() => {
+
+				setInput("");
+
+				getTasks();
+
+			})
+
+			.catch((error) => console.log(error));
+
+		}
 
 	};
+
+
+
+	// Eliminar una tarea
+	const deleteTask = (id) => {
+
+
+		fetch(`https://playground.4geeks.com/todo/todos/${user}/${id}`, {
+
+			method: "DELETE"
+
+		})
+
+		.then(() => {
+
+			getTasks();
+
+		})
+
+		.catch((error) => console.log(error));
+
+
+	};
+
+
+
+	// Eliminar todas las tareas
+	const deleteAll = () => {
+
+
+		fetch(`https://playground.4geeks.com/todo/todos/${user}`, {
+
+			method: "DELETE"
+
+		})
+
+		.then(() => {
+
+			setTasks([]);
+
+		})
+
+		.catch((error) => console.log(error));
+
+
+	};
+
 
 
 	return (
-		<div className="container mt-5">
 
-			<h1 className="text-center">
-				Todo List
-			</h1>
+		<div className="todo-container">
+
+
+			<h1>todos</h1>
 
 
 			<input
+
+				className="todo-input"
+
 				type="text"
-				className="form-control"
-				placeholder="Añadir tarea"
+
+				placeholder="What needs to be done?"
+
 				value={input}
+
 				onChange={(e) => setInput(e.target.value)}
+
 				onKeyDown={addTask}
+
 			/>
 
 
-			<ul className="list-group mt-3">
+
+			<ul>
 
 
 				{
 					tasks.length === 0 ?
 
-					<li className="list-group-item text-muted">
+					<li className="empty">
+
 						No hay tareas, añadir tareas
+
 					</li>
+
 
 					:
 
-					tasks.map((task, index) => (
+					tasks.map((task) => (
 
 						<TodoItem
-							key={index}
+
+							key={task.id}
+
 							task={task}
+
 							deleteTask={deleteTask}
+
 						/>
 
 					))
+
 				}
 
 
 			</ul>
 
 
-			<p className="mt-3 text-muted">
+
+			<div className="counter">
+
 				{tasks.length} tareas pendientes
-			</p>
+
+
+				<button
+
+					className="btn btn-danger ms-3"
+
+					onClick={deleteAll}
+
+				>
+
+					Borrar todas
+
+				</button>
+
+
+			</div>
+
 
 		</div>
+
 	);
+
 };
 
 
